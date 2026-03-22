@@ -1,0 +1,21 @@
+
+model Media {
+  id            String @id @default(uuid())
+  type          MediaType
+  title         String
+  synopsis      String
+  genre         Genre[]
+  releaseYear   Int
+  director      String
+  cast          String[]
+  platform      String
+  priceType     PriceType
+  youtubeLink   String
+  review        Review[]
+  watchlist     Watchlist[]
+  Purchase      Purchase[]
+
+  createdAt     DateTime @default(now())
+
+  @@map("media")
+}

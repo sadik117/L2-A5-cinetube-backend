@@ -1,0 +1,32 @@
+enum Role {
+  USER
+  ADMIN
+}
+
+enum MediaType {
+  Movie
+  Series
+}
+
+enum Genre {
+  Action
+  Adventure
+  Crime
+  Drama
+  Documentary
+  Thriller 
+  Science_fiction
+  Psychological
+  Sports
+  Horror
+}
+
+enum PriceType {
+  Free
+  Premium
+}
+
+enum PurchaseType {
+    Buy
+    Subscription
+}

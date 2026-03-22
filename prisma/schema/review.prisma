@@ -1,0 +1,17 @@
+model Review {
+  id          String   @id @default(uuid())
+  userId      String
+  mediaId     String
+  rating      Int
+  content     String
+  isSpoiler   Boolean  @default(false)
+  isApproved  Boolean  @default(false)
+  likes       Like[]
+  comments    Comment[]
+  createdAt   DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  media Media @relation(fields: [mediaId], references: [id])
+  
+  @@map("review")
+}
