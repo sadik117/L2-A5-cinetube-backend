@@ -5,7 +5,7 @@ import auth from "../../middleware/auth";
 
 const movieRouter = Router();
 
-// public routes
+// user routes
 movieRouter.get("/", MovieController.getMovies);
 movieRouter.get("/:id", MovieController.getMovie);
 

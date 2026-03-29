@@ -21,6 +21,7 @@ export const statement = {
   purchase: ["create", "read"],
 
   analytics: ["read"],
+  
 } as const;
 
 const ac = createAccessControl(statement);
