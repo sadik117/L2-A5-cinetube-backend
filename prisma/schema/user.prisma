@@ -1,46 +1,43 @@
 model User {
-  id            String    @id @default(uuid())
-  name          String
-  email         String    @unique
-  password      String
-  role          Role      @default(USER)
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  role     Role    @default(USER)
 
-  emailVerified Boolean?   @default(false)
+  emailVerified Boolean?  @default(false)
   image         String?
   isDeleted     Boolean   @default(false)
   deletedAt     DateTime?
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sessions  Session[]
+  accounts  Account[]
 
-  likes          Like[]
-  reviews        Review[]
-  comments       Comment[]
-  watchlist     Watchlist[]
-  purchase      Purchase[]
+  likes     Like[]
+  reviews   Review[]
+  comments  Comment[]
+  watchlist Watchlist[]
+  purchase  Purchase[]
 
   @@map("user")
 }
 
-
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id
+  expiresAt   DateTime
+  token       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ipAddress   String?
+  userAgent   String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@index([userId])
   @@map("session")
 }
-
 
 model Account {
   id                    String    @id

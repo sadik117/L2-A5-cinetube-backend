@@ -7,4 +7,6 @@ model Like {
   review Review @relation(fields: [reviewId], references: [id])
 
   @@unique([userId, reviewId])
+
+  @@map("like")
 }
