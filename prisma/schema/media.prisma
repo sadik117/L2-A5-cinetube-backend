@@ -3,6 +3,7 @@ model Media {
   id            String @id @default(uuid())
   type          MediaType
   title         String
+  coverImage    String
   synopsis      String
   genre         Genre[]
   releaseYear   Int

@@ -16,8 +16,13 @@ const auth = (resource: string, action: string) => {
 
       const role = session.user.role as "USER" | "ADMIN";
 
-      // Check if user has permission (admin has all permissions)
-      const hasPermission = role === "ADMIN";
+      const hasPermission = await betterAuth.api.userHasPermission({
+        body: {
+          userId: session.user.id,
+          role,
+          permissions: { [resource]: [action] },
+        },
+      });
 
       if (!hasPermission) {
         return res.status(403).json({ 

@@ -1,8 +1,9 @@
 import { Router } from "express";
-import userRouter from "../modules/user/user.routes";
+import movieRouter from "../modules/movie/movie.routes";
+
 
 const routes = Router();
 
-routes.use("", userRouter )
+routes.use("/movie", movieRouter);
 
 export default routes;
