@@ -1,8 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { admin } from "better-auth/plugins";
-import { adminRole, userRole } from "./permission";
+
 
 export const auth = betterAuth({
   basePath: "/api/auth",
@@ -24,18 +23,6 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-
-   plugins: [
-    admin({
-      adminRoles: ["ADMIN"],
-      defaultRole: "USER",
-      roles: {
-        ADMIN: adminRole,
-        USER: userRole,
-      },
-    }),
-  ],
-
 
   user: {
     additionalFields: {

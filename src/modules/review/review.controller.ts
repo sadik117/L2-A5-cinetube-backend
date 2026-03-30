@@ -6,8 +6,6 @@ export const createReview = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
 
-    console.log(userId);
-
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -47,6 +45,7 @@ export const createReview = async (req: Request, res: Response) => {
   }
 };
 
+
 // get user's own reviews including unpublished
 export const getUserReviews = async (req: Request, res: Response) => {
   try {
@@ -64,6 +63,7 @@ export const getUserReviews = async (req: Request, res: Response) => {
   }
 };
 
+
 // public approved reviews for a movie/series
 export const getReviewsByMedia = async (req: Request, res: Response) => {
   try {
@@ -77,6 +77,7 @@ export const getReviewsByMedia = async (req: Request, res: Response) => {
   }
 };
 
+
 // admin get all reviews
 export const getAllReviews = async (req: Request, res: Response) => {
   try {
@@ -88,16 +89,21 @@ export const getAllReviews = async (req: Request, res: Response) => {
   }
 };
 
+
 // approve review by admin
 export const approveReview = async (req: Request, res: Response) => {
   try {
     const result = await ReviewService.approveReview(req.params.id as string);
-    res.json(result);
+    res.status(201).json({ 
+      message: "Review approved successfully", 
+      data: result 
+    });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // edit review only for unpublished reviews
 export const updateReview = async (req: Request, res: Response) => {
@@ -147,6 +153,7 @@ export const updateReview = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const deleteReview = async (req: Request, res: Response) => {
   try {

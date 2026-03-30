@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { ICreateMovie } from "./types";
+import { ICreateMovie } from "./movie.interface";
 
 
 export const createMovie = async (data: ICreateMovie) => {

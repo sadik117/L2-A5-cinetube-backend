@@ -1,40 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { NextFunction, Request, Response } from "express";
-import { auth as betterAuth } from "../lib/auth";
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-const auth = (resource: string, action: string) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+ const auth = (requiredRole?: string | undefined) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
-      // betterAuth will check cookies automatically
-      const session = await betterAuth.api.getSession({
-        headers: req.headers,
-      });
+      //  token check from cookie
+      const token = req.cookies?.accessToken;
 
-      if (!session) {
-        return res.status(401).json({ message: "Unauthorized!" });
+      if (!token) {
+        return res.status(401).json({ message: "Unauthorized: You don't have token!" });
       }
 
-      const role = session.user.role as "USER" | "ADMIN";
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+      ) as any;
 
-      const hasPermission = await betterAuth.api.userHasPermission({
-        body: {
-          userId: session.user.id,
-          role,
-          permissions: { [resource]: [action] },
-        },
-      });
+      // attach user
+      req.user = decoded;
 
-      if (!hasPermission) {
-        return res.status(403).json({ 
-          message: `Forbidden: You do not have permission to ${action} ${resource}!`,
-        });
+      // role check
+      if (requiredRole && decoded.role !== requiredRole) {
+        return res.status(403).json({ message: "Forbidden: You don't have permission to access!" });
       }
 
-      (req as any).user = session.user;
+
       next();
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Internal Server Error" });
+    } catch (error) {
+      console.log("JWT ERROR:", error);
+      return res.status(401).json({ message: "Invalid token" });
     }
   };
 };
