@@ -2,7 +2,7 @@ import { createAccessControl } from "better-auth/plugins";
 
 // define all resources and actions
 export const statement = {
-  user: ["create", "read", "update", "delete"],
+  user: ["create", "read", "update", "delete", "ban", "unban"],
 
   media: ["create", "read", "update", "delete"],
 
@@ -28,7 +28,7 @@ const ac = createAccessControl(statement);
 
 
 export const adminRole = ac.newRole({
-  user: ["create", "read", "update", "delete"],
+  user: ["create", "read", "update", "delete", "ban", "unban"],
 
   media: ["create", "read", "update", "delete"],
 

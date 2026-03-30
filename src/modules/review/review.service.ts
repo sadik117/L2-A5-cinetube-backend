@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { IReview, IUpdateReview } from "./types";
+import { IReview, IUpdateReview } from "./review.interface";
 
 export const createReview = async (userId: string, data: IReview) => {
   return await prisma.review.create({

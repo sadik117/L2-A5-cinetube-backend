@@ -3,16 +3,20 @@ import routes from "./routes/router";
 import { auth } from "./lib/auth";
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors"
-
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
 
 const app: Application = express();
 
+dotenv.config();
 app.use(express.json());
 app.use(cors({
     origin: "http://localhost:3000", 
     credentials: true,              
     allowedHeaders: ["Content-Type", "Authorization", "Origin"],             
 }));
+
+app.use(cookieParser());
 
 // Better Auth Route 
 app.all("/api/auth/*splat", toNodeHandler(auth));

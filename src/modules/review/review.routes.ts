@@ -1,6 +1,6 @@
 import express from "express";
 import * as ReviewController from "./review.controller";
-import auth from "../../middleware/auth";
+import auth  from "../../middleware/auth";
 
 const reviewRouter = express.Router();
 
