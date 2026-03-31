@@ -78,3 +78,40 @@ export const logoutUser = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+// redirect to Google
+export const googleLogin = (req: Request, res: Response) => {
+  const url =
+  `https://accounts.google.com/o/oauth2/v2/auth?` +
+  `client_id=${process.env.GOOGLE_CLIENT_ID}` +
+  `&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}` +
+  `&response_type=code` +
+  `&scope=openid%20email%20profile` +
+  `&access_type=offline` +
+  `&prompt=consent`;
+
+  res.redirect(url);
+};
+
+
+// callback
+export const googleCallback = async (req: Request, res: Response) => {
+  try {
+    const code = req.query.code as string;
+
+    if (!code) {
+      return res.status(400).json({ message: "No code provided" });
+    }
+
+    const result = await AuthService.googleLoginService(code);
+
+    // set cookies
+    setAuthCookies(res, result);
+
+    // redirect to frontend
+    res.redirect("http://localhost:3000");
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
