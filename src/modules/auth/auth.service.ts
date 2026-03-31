@@ -9,6 +9,7 @@ import {
 import { ILoginData, IRegisterData } from "./auth.interface";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import { AppError } from "../../utils/AppError";
 
 export const registerUser = async (data: IRegisterData) => {
   const { name, email, password, image } = data;
@@ -83,7 +84,7 @@ const createSession = async (user: { id: string; role: string }) => {
 
 export const refreshAccessToken = async (refreshToken: string) => {
   if (!refreshToken) {
-    throw new Error("No refresh token found");
+    throw new AppError("No refresh token found", 400);
   }
 
   // verify refresh token
@@ -101,12 +102,12 @@ export const refreshAccessToken = async (refreshToken: string) => {
   });
 
   if (!session) {
-    throw new Error("Invalid session");
+    throw new AppError("Invalid session", 400);
   }
 
   // check expiration
   if (new Date() > session.expiresAt) {
-    throw new Error("Session expired");
+    throw new AppError("Session expired", 400);
   }
 
   // generate new access token
@@ -145,7 +146,7 @@ export const googleLoginService = async (code: string) => {
   const payload = ticket.getPayload();
 
   if (!payload?.email) {
-    throw new Error("Google authentication failed");
+    throw new AppError("Google authentication failed", 400);
   }
 
   // find or create user

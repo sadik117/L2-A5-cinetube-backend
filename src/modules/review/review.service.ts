@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
 import { IReview, IUpdateReview } from "./review.interface";
 
 export const createReview = async (userId: string, data: IReview) => {
@@ -85,15 +86,15 @@ export const updateReview = async (id: string, userId: string, data: IUpdateRevi
   });
 
   if (!review) {
-    throw new Error("Review not found");
+    throw new AppError("Review not found", 404);
   }
 
   if (review.userId !== userId) {
-    throw new Error("Unauthorized: You can only edit your own reviews");
+    throw new AppError("Unauthorized: You can only edit your own reviews", 403);
   }
 
   if (review.isApproved) {
-    throw new Error("Cannot edit approved reviews");
+    throw new AppError("Cannot edit approved reviews", 400);
   }
 
   return await prisma.review.update({
@@ -116,11 +117,11 @@ export const deleteReview = async (id: string, userId?: string) => {
     });
 
     if (!review) {
-      throw new Error("Review not found");
+      throw new AppError("Review not found", 404);
     }
 
     if (review.userId !== userId) {
-      throw new Error("Unauthorized: You can only delete your own reviews");
+      throw new AppError("Unauthorized: You can only delete your own reviews", 403);
     }
   }
 

@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
 import { ICreateMovie } from "./movie.interface";
 
 
@@ -30,7 +31,7 @@ export const updateMovie = async (id: string, data: ICreateMovie) => {
   });
   
   if (!existingMovie) {
-    throw new Error("Movie not found");
+    throw new AppError("Movie not found", 404);
   }
   
   return await prisma.media.update({

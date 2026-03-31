@@ -5,6 +5,7 @@ import { toNodeHandler } from "better-auth/node";
 import cors from "cors"
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import { globalErrorHandler } from "./middleware/errorHandler";
 
 const app: Application = express();
 
@@ -23,6 +24,9 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 
 //  API Routes 
 app.use("/api/v1", routes);
+
+// Global Error Handler
+app.use(globalErrorHandler);
 
 //  Root Route 
 app.get("/", (req: Request, res: Response) => {
