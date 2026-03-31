@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import * as LikeService from "./like.service";
+import { catchAsync } from "../../utils/catchAsync";
 
-export const toggleLike = async (req: Request, res: Response) => {
-  try {
+export const toggleLike = catchAsync(async (req: Request, res: Response) => {
+
     const userId = req.user?.id;
 
     if (!userId) {
@@ -18,7 +19,5 @@ export const toggleLike = async (req: Request, res: Response) => {
       message: result.liked ? "Liked" : "Unliked",
       data: result,
     });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  
+});

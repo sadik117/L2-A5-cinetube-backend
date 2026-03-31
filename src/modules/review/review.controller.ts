@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import * as ReviewService from "./review.service";
+import { catchAsync } from "../../utils/catchAsync";
 
-export const createReview = async (req: Request, res: Response) => {
-  try {
+export const createReview = catchAsync(async (req: Request, res: Response) => {
+  
     const userId = req.user?.id;
 
     if (!userId) {
@@ -39,16 +40,12 @@ export const createReview = async (req: Request, res: Response) => {
       message: "Review submitted, waiting for approval",
       data: result,
     });
-  } catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
-};
+  });
 
 
 // get user's own reviews including unpublished
-export const getUserReviews = async (req: Request, res: Response) => {
-  try {
+export const getUserReviews = catchAsync(async (req: Request, res: Response) => {
+
     const userId = req.user?.id;
 
     if (!userId) {
@@ -57,57 +54,49 @@ export const getUserReviews = async (req: Request, res: Response) => {
 
     const result = await ReviewService.getUserReviews(userId);
     res.json(result);
-  } catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
-};
+  
+});
+
 
 
 // public approved reviews for a movie/series
-export const getReviewsByMedia = async (req: Request, res: Response) => {
-  try {
+export const getReviewsByMedia = catchAsync(async (req: Request, res: Response) => {
+
     const result = await ReviewService.getReviewsByMedia(
       req.params.mediaId as string
     );
+  
     res.json(result);
-  } catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
-};
+ 
+});
 
 
 // admin get all reviews
-export const getAllReviews = async (req: Request, res: Response) => {
-  try {
+export const getAllReviews = catchAsync(async (req: Request, res: Response) => {
+
     const result = await ReviewService.getAllReviews();
+
     res.json(result);
-  } catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
-};
+  
+});
 
 
 // approve review by admin
-export const approveReview = async (req: Request, res: Response) => {
-  try {
+export const approveReview = catchAsync(async (req: Request, res: Response) => {
+
     const result = await ReviewService.approveReview(req.params.id as string);
+
     res.status(201).json({ 
       message: "Review approved successfully", 
       data: result 
     });
-  } catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
-};
+  
+});
 
 
 // edit review only for unpublished reviews
-export const updateReview = async (req: Request, res: Response) => {
-  try {
+export const updateReview = catchAsync(async (req: Request, res: Response) => {
+
     const userId = req.user?.id;
 
     if (!userId) {
@@ -139,28 +128,17 @@ export const updateReview = async (req: Request, res: Response) => {
       message: "Review updated successfully",
       data: result,
     });
-  } catch (error: any) {
-    console.log(error);
-    if (error.message.includes("not found")) {
-      return res.status(404).json({ message: error.message });
-    }
-    if (error.message.includes("Unauthorized")) {
-      return res.status(403).json({ message: error.message });
-    }
-    if (error.message.includes("Cannot edit")) {
-      return res.status(400).json({ message: error.message });
-    }
-    res.status(500).json({ message: error.message });
-  }
-};
+  });
 
 
-export const deleteReview = async (req: Request, res: Response) => {
-  try {
+
+export const deleteReview = catchAsync(async (req: Request, res: Response) => {
+
     const result = await ReviewService.deleteReview(req.params.id as string);
-    res.json({ message: "Review deleted successfully", data: result });
-  } catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
-};
+
+    res.json({ 
+      message: "Review deleted successfully", 
+      data: result 
+    });
+  
+});

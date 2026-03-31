@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import * as MovieService from "./movie.service";
+import { catchAsync } from "../../utils/catchAsync";
 
-export const createMovie = async (req: Request, res: Response) => {
-  try {
+export const createMovie = catchAsync(async (req: Request, res: Response) => {
 
     const { type, title, coverImage, synopsis, genre, releaseYear, director, cast, platform, priceType, youtubeLink } = req.body;
     
@@ -18,49 +18,38 @@ export const createMovie = async (req: Request, res: Response) => {
     const result = await MovieService.createMovie(req.body);
     res.status(201).json(result);
   } 
-  catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
-};
 
-export const getMovies = async (req: Request, res: Response) => {
- try { 
+});
+
+export const getMovies = catchAsync(async (req: Request, res: Response) => {
+
   const result = await MovieService.getAllMovies();
   res.json(result);
- } 
- catch (error: any) {  
-  res.status(500).json({ message: error.message });
- }
-};
 
-export const getMovie = async (req: Request, res: Response) => {
-    try {
+});
+
+export const getMovie = catchAsync(async (req: Request, res: Response) => {
+
         const result = await MovieService.getSingleMovie(req.params.id as string);
+
         if (!result) {
             return res.status(404).json({ message: "Movie not found" });
         }
-        res.json(result);
-    } catch (error: any) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
-export const updateMovie = async (req: Request, res: Response) => {
-    try {
-        const result = await MovieService.updateMovie(req.params.id as string, req.body);
         res.json(result);
-    } catch (error: any) {
-        console.log(error);
-        res.status(500).json({ message: error.message });
-    }
-};
 
-export const deleteMovie = async (req: Request, res: Response) => {
-    try {
-        const result = await MovieService.deleteMovie(req.params.id as string);
-        res.json(result);
-    } catch (error: any) {
-        res.status(500).json({ message: error.message });
-    }
-};  
+});
+
+export const updateMovie = catchAsync(async (req: Request, res: Response) => {
+
+    const result = await MovieService.updateMovie(req.params.id as string, req.body);
+    res.json(result);
+
+});
+
+export const deleteMovie = catchAsync(async (req: Request, res: Response) => {
+
+    const result = await MovieService.deleteMovie(req.params.id as string);
+    res.json(result);
+
+});

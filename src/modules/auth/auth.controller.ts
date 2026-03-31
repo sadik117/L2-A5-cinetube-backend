@@ -2,10 +2,11 @@
 import { Request, Response } from "express";
 import * as AuthService from "./auth.service";
 import { setAuthCookies } from "../../utils/setCookie";
+import { catchAsync } from "../../utils/catchAsync";
 
 
-export const loginUser = async (req: Request, res: Response) => {
-  try {
+export const loginUser = catchAsync(async (req: Request, res: Response) => {
+
     const result = await AuthService.loginUser(req.body);
 
     setAuthCookies(res, result);
@@ -14,14 +15,11 @@ export const loginUser = async (req: Request, res: Response) => {
       message: "Login successful",
       user: result.user,
     });
-  } catch (error: any) {
-    res.status(401).json({ message: error.message });
-  }
-};
+
+});
 
 
-export const registerUser = async (req: Request, res: Response) => {
-  try {
+export const registerUser = catchAsync(async (req: Request, res: Response) => {
     const result = await AuthService.registerUser(req.body);
 
     setAuthCookies(res, result);
@@ -30,14 +28,12 @@ export const registerUser = async (req: Request, res: Response) => {
       message: "Registration successful",
       user: result.user,
     });
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
-  }
-};
+
+});
 
 
-export const refreshToken = async (req: Request, res: Response) => {
-  try {
+export const refreshToken = catchAsync(async (req: Request, res: Response) => {
+
     const refreshToken = req.cookies.refreshToken;
 
     const newAccessToken = await AuthService.refreshAccessToken(
@@ -54,15 +50,13 @@ export const refreshToken = async (req: Request, res: Response) => {
     res.json({
       message: "Access token refreshed",
     });
-  } catch (error: any) {
-    res.status(401).json({ message: error.message });
-  }
-};
+
+});
 
 
-export const logoutUser = async (req: Request, res: Response) => {
-  try {
-    const sessionToken = req.cookies.sessionToken;
+export const logoutUser = catchAsync(async (req: Request, res: Response) => {
+
+  const sessionToken = req.cookies.sessionToken;
 
     await AuthService.logoutUser(sessionToken);
 
@@ -74,10 +68,8 @@ export const logoutUser = async (req: Request, res: Response) => {
     res.json({
       message: "Logged out successfully",
     });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-};
+
+});
 
 
 // redirect to Google
@@ -96,8 +88,8 @@ export const googleLogin = (req: Request, res: Response) => {
 
 
 // callback
-export const googleCallback = async (req: Request, res: Response) => {
-  try {
+export const googleCallback = catchAsync(async (req: Request, res: Response) => {
+
     const code = req.query.code as string;
 
     if (!code) {
@@ -111,7 +103,5 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     // redirect to frontend
     res.redirect("http://localhost:3000");
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-};
+
+});
