@@ -21,6 +21,9 @@ export const getReviewsByMedia = async (mediaId: string) => {
     },
     include: {
       user: true,
+      _count: {
+        select: {likes: true},
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -37,6 +40,9 @@ export const getUserReviews = async (userId: string) => {
     },
     include: {
       media: true,
+      _count: {
+        select: {likes: true},
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -51,6 +57,9 @@ export const getAllReviews = async () => {
     include: {
       user: true,
       media: true,
+      _count: {
+        select: {likes: true},
+      },
     },
     orderBy: {
       createdAt: "desc",
