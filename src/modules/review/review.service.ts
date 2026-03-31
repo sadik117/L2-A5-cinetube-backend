@@ -12,6 +12,28 @@ export const createReview = async (userId: string, data: IReview) => {
   });
 };
 
+// update media average rating and total reviews after review create, update or delete
+const updateMediaRating = async (mediaId: string) => {
+  const result = await prisma.review.aggregate({
+    where: {
+      mediaId,
+      isApproved: true,
+    },
+    _avg: {
+      rating: true,
+    },
+    _count: true,
+  });
+
+  await prisma.media.update({
+    where: { id: mediaId },
+    data: {
+      averageRating: result._avg.rating || 0,
+      totalReviews: result._count,
+    },
+  });
+};
+
 
 // only approved reviews of users 
 export const getReviewsByMedia = async (mediaId: string) => {
@@ -71,10 +93,15 @@ export const getAllReviews = async () => {
 
 // approve review by admin
 export const approveReview = async (id: string) => {
-  return await prisma.review.update({
+
+  const review = await prisma.review.update({
     where: { id },
     data: { isApproved: true },
   });
+
+  await updateMediaRating(review.mediaId);
+  
+  return review;
 };
 
 
@@ -94,7 +121,7 @@ export const updateReview = async (id: string, userId: string, data: IUpdateRevi
   }
 
   if (review.isApproved) {
-    throw new AppError("Cannot edit approved reviews", 400);
+    throw new AppError("You cannot edit approved reviews", 400);
   }
 
   return await prisma.review.update({
@@ -125,7 +152,10 @@ export const deleteReview = async (id: string, userId?: string) => {
     }
   }
 
-  return await prisma.review.delete({
+  const deleted = await prisma.review.delete({
     where: { id },
   });
+
+  await updateMediaRating(deleted.mediaId);
+  return deleted;
 };
