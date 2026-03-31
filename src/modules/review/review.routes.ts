@@ -1,8 +1,8 @@
-import express from "express";
+import { Router } from "express";
 import * as ReviewController from "./review.controller";
 import auth from "../../middleware/auth";
 
-const reviewRouter = express.Router();
+const reviewRouter = Router();
 
 // user routes
 reviewRouter.post("/", auth(), ReviewController.createReview);
