@@ -14,5 +14,6 @@ reviewRouter.delete("/:id", auth(), ReviewController.deleteReview);
 // admin routes
 reviewRouter.get("/", auth("ADMIN"), ReviewController.getAllReviews);
 reviewRouter.patch("/approve/:id", auth("ADMIN"), ReviewController.approveReview);
+reviewRouter.patch("/unpublish/:id", auth("ADMIN"), ReviewController.unpublishReview);
 
 export default reviewRouter;

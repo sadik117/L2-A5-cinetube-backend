@@ -105,6 +105,51 @@ export const approveReview = async (id: string) => {
 };
 
 
+// Unpublish / reject review by admin
+export const unpublishReview = async (id: string) => {
+  // check if the review exists
+  const review = await prisma.review.findUnique({
+    where: { id },
+    include: {
+      media: true,
+      user: {
+        select: { id: true, name: true, email: true }
+      }
+    }
+  });
+
+  if (!review) {
+    throw new AppError("Review not found", 404);
+  }
+
+  // Prevent unpublishing if already not approved
+  if (!review.isApproved) {
+    throw new AppError("Review is already unpublished or pending", 400);
+  }
+
+  // Unpublish the review
+  const unpublishedReview = await prisma.review.update({
+    where: { id },
+    data: { 
+      isApproved: false 
+    },
+    include: {
+      user: {
+        select: { id: true, name: true, image: true }
+      },
+      media: {
+        select: { id: true, title: true, averageRating: true }
+      }
+    }
+  });
+
+  // Update the media's average rating after unpublishing
+  await updateMediaRating(review.mediaId);
+
+  return unpublishedReview;
+};
+
+
 // update review only for unpublished reviews
 export const updateReview = async (id: string, userId: string, data: IUpdateReview) => {
   // check if review exists and belongs to user
@@ -136,6 +181,8 @@ export const updateReview = async (id: string, userId: string, data: IUpdateRevi
   });
 };
 
+
+// delete review by user
 export const deleteReview = async (id: string, userId?: string) => {
   // check ownership for users deleting their own reviews
   if (userId) {

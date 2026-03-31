@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import * as ReviewService from "./review.service";
 import { catchAsync } from "../../utils/catchAsync";
+import { AppError } from "../../utils/AppError";
 
 export const createReview = catchAsync(async (req: Request, res: Response) => {
   
@@ -91,6 +92,23 @@ export const approveReview = catchAsync(async (req: Request, res: Response) => {
       data: result 
     });
   
+});
+
+// unpublish / reject review by admin 
+export const unpublishReview = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (!id) {
+    throw new AppError("Review ID is required", 400);
+  }
+
+  const result = await ReviewService.unpublishReview(id);
+
+  res.status(200).json({
+    status: "success",
+    message: "Review has been unpublished successfully",
+    data: result
+  });
 });
 
 

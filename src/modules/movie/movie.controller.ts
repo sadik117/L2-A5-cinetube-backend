@@ -17,9 +17,8 @@ export const createMovie = catchAsync(async (req: Request, res: Response) => {
 
     const result = await MovieService.createMovie(req.body);
     res.status(201).json(result);
-  } 
-
-});
+    
+  });
 
 export const getMovies = catchAsync(async (req: Request, res: Response) => {
 
