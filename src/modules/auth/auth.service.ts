@@ -10,6 +10,8 @@ import { ILoginData, IRegisterData } from "./auth.interface";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import { AppError } from "../../utils/AppError";
+import crypto from "crypto";
+
 
 export const registerUser = async (data: IRegisterData) => {
   const { name, email, password, image } = data;
@@ -191,4 +193,69 @@ export const googleLoginService = async (code: string) => {
     sessionToken,
     user,
   };
+};
+
+
+export const forgotPassword = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  // generate token
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // save in DB
+  await prisma.user.update({
+    where: { email },
+    data: {
+      passwordResetToken: hashedToken as string,
+      passwordResetExpires: new Date(Date.now() + 10 * 60 * 1000), // 10 min
+    },
+  });
+
+  // return raw token send via email
+  return resetToken;
+};
+
+
+export const resetPassword = async (token: string, newPassword: string) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+
+  const user = await prisma.user.findFirst({
+    where: {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: {
+        gt: new Date(),
+      },
+    },
+  });
+
+  if (!user) {
+    throw new AppError("Token invalid or expired", 400);
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    },
+  });
+
+  return true;
 };

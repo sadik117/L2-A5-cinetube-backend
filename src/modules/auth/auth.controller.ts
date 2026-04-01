@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import * as AuthService from "./auth.service";
 import { setAuthCookies } from "../../utils/setCookie";
 import { catchAsync } from "../../utils/catchAsync";
+import { sendResetEmail } from "../../utils/sendEmail";
 
 
 export const loginUser = catchAsync(async (req: Request, res: Response) => {
@@ -104,4 +105,35 @@ export const googleCallback = catchAsync(async (req: Request, res: Response) => 
     // redirect to frontend
     res.redirect("http://localhost:3000");
 
+});
+
+
+export const forgotPassword = catchAsync(async (req: Request, res: Response) => {
+
+    const { email } = req.body;
+
+    const token = await AuthService.forgotPassword(email);
+
+    const resetURL = `http://localhost:3000/reset-password/${token}`;
+
+    await sendResetEmail(email, resetURL);
+
+    res.json({
+      message: "Password reset email sent",
+    });
+
+});
+
+
+export const resetPassword = catchAsync(async (req: Request, res: Response) => {
+
+    const { token } = req.params;
+    const { password } = req.body;
+
+    await AuthService.resetPassword(token as string, password);
+
+    res.json({
+      message: "Password reset successfully",
+    });
+  
 });
