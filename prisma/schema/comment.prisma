@@ -1,13 +1,23 @@
 model Comment {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   content   String
-  userId    String
-  reviewId  String
-  parentId  String? 
-  createdAt DateTime @default(now())
 
-  user   User  @relation(fields: [userId], references: [id])
-  review Review @relation(fields: [reviewId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  review    Review   @relation(fields: [reviewId], references: [id])
+  reviewId  String
+
+  parentId  String?  
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+
+  replies   Comment[] @relation("CommentReplies")
+  likes     CommentLike[]
+
+  isApproved Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("comment")
 }

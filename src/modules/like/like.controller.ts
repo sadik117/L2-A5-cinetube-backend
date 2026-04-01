@@ -3,7 +3,8 @@ import { Request, Response } from "express";
 import * as LikeService from "./like.service";
 import { catchAsync } from "../../utils/catchAsync";
 
-export const toggleLike = catchAsync(async (req: Request, res: Response) => {
+// Review Likes
+export const toggleLikeReview = catchAsync(async (req: Request, res: Response) => {
 
     const userId = req.user?.id;
 
@@ -13,7 +14,7 @@ export const toggleLike = catchAsync(async (req: Request, res: Response) => {
 
     const { reviewId } = req.params;
 
-    const result = await LikeService.toggleLike(userId, reviewId as string);
+    const result = await LikeService.toggleLikeReview(userId, reviewId as string);
 
     res.json({
       message: result.liked ? "Liked" : "Unliked",
@@ -21,3 +22,14 @@ export const toggleLike = catchAsync(async (req: Request, res: Response) => {
     });
   
 });
+
+
+// Comment Likes
+export const toggleLikeComment = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const commentId = req.params.id;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  const result = await LikeService.toggleLikeComment(commentId as string, userId);
+  res.json(result);
+};

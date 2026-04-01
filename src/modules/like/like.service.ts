@@ -1,9 +1,11 @@
 import { prisma } from "../../lib/prisma";
 
-export const toggleLike = async (userId: string, reviewId: string) => {
+
+// Like/unlike review
+export const toggleLikeReview = async (userId: string, reviewId: string) => {
 
   // check if already liked
-  const existing = await prisma.like.findUnique({
+  const existing = await prisma.reviewLike.findUnique({
     where: {
       userId_reviewId: {
         userId,
@@ -14,7 +16,7 @@ export const toggleLike = async (userId: string, reviewId: string) => {
 
   if (existing) {
     // unlike
-    await prisma.like.delete({
+    await prisma.reviewLike.delete({
       where: {
         userId_reviewId: {
           userId,
@@ -27,7 +29,7 @@ export const toggleLike = async (userId: string, reviewId: string) => {
   }
 
   // like
-  await prisma.like.create({
+  await prisma.reviewLike.create({
     data: {
       userId,
       reviewId,
@@ -35,4 +37,20 @@ export const toggleLike = async (userId: string, reviewId: string) => {
   });
 
   return { liked: true };
+};
+
+
+// Like/unlike comment
+export const toggleLikeComment = async (commentId: string, userId: string) => {
+
+  const existing = await prisma.commentLike.findUnique({ where: { userId_commentId: { userId, commentId } } });
+
+  if (existing) {
+    await prisma.commentLike.delete({ where: { userId_commentId: { userId, commentId } } });
+    return { liked: false };
+  }
+
+  await prisma.commentLike.create({ data: { userId, commentId } });
+  return { liked: true };
+  
 };

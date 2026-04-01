@@ -19,7 +19,8 @@ model User {
   sessions  Session[]
   accounts  Account[]
 
-  likes     Like[]
+  reviewLikes  ReviewLike[]
+  commentLikes CommentLike[]
   reviews   Review[]
   comments  Comment[]
   watchlist Watchlist[]

@@ -1,19 +1,18 @@
 model Review {
-  id          String   @id @default(uuid())
-  userId      String
-  mediaId     String
-  rating      Int
-  content     String
-  tags        String[] @default([])
-  isSpoiler   Boolean  @default(false)
-  isApproved  Boolean  @default(false)
-  likes       Like[]
-  comments    Comment[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  media     Media    @relation(fields: [mediaId], references: [id])
+  mediaId   String
+  tags      String[]
+  content   String
+  rating    Int
+  isSpoiler Boolean @default(false)
+  isApproved Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  comments  Comment[]
+  likes     ReviewLike[]
 
-  user  User  @relation(fields: [userId], references: [id])
-  media Media @relation(fields: [mediaId], references: [id])
-  
   @@map("review")
 }
