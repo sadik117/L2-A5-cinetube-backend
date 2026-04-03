@@ -24,7 +24,7 @@ model User {
   reviews   Review[]
   comments  Comment[]
   watchlist Watchlist[]
-  purchase  Purchase[]
+  subscriptions Subscription[]
 
   @@map("user")
 }

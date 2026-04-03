@@ -12,9 +12,10 @@ model Media {
   platform      String
   priceType     PriceType
   youtubeLink   String
+  
   review        Review[]
   watchlist     Watchlist[]
-  Purchase      Purchase[]
+
   averageRating Float   @default(0)
   totalReviews   Int     @default(0)
 
