@@ -22,9 +22,14 @@ export const createMovie = catchAsync(async (req: Request, res: Response) => {
 
 export const getMovies = catchAsync(async (req: Request, res: Response) => {
 
-  const result = await MovieService.getAllMovies();
-  res.json(result);
+    const result = await MovieService.getAllMovies(req.query);
 
+    res.json({
+      success: true,
+      message: "Movies fetched successfully",
+      ...result,
+    });
+ 
 });
 
 export const getMovie = catchAsync(async (req: Request, res: Response) => {
