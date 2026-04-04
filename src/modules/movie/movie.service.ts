@@ -118,3 +118,34 @@ export const deleteMovie = async (id: string) => {
     where: { id },
   });
 };
+
+
+export const getStreamingLink = async (mediaId: string, userId: string) => {
+ 
+  const media = await prisma.media.findUnique({
+      where: { id: mediaId },
+    });
+
+    if (!media) {
+      throw new AppError("Media not found", 404);
+    }
+
+    // Free content
+    if (media.priceType === "Free") {
+      return { youtubeLink: media.youtubeLink };
+    }
+
+    // Premium content
+    const subscription = await prisma.subscription.findFirst({
+      where: {
+        userId,
+        status: "active",
+      },
+    });
+
+    if (!subscription) {
+      throw new AppError("Premium subscription required!!", 403);
+    }
+
+    return { youtubeLink: media.youtubeLink };
+};

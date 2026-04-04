@@ -51,9 +51,25 @@ export const updateMovie = catchAsync(async (req: Request, res: Response) => {
 
 });
 
-export const deleteMovie = catchAsync(async (req: Request, res: Response) => {
-
+export const deleteMovie = catchAsync(async (req: Request, res: Response) => 
+{
     const result = await MovieService.deleteMovie(req.params.id as string);
     res.json(result);
+
+});
+
+
+export const getStreamingLink = catchAsync(async (req: Request, res: Response) => {
+
+    const userId = req.user?.id;
+    const mediaId = req.params.id;
+
+    const result = await MovieService.getStreamingLink(mediaId as string, userId as string);
+
+    if (result.youtubeLink) {
+      return res.json({
+        youtubeLink: result.youtubeLink,
+      });
+    }    
 
 });
