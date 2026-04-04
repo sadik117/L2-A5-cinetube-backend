@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
     "seedAdmin": "npx tsx src/lib/seedAdmin.ts",
-    "stripe:webhook": "C:\\stripe_1.40.0_windows_x86_64\\stripe listen --forward-to localhost:5000/webhook",
+    "stripe:webhook": "C:\\stripe_1.40.0_windows_x86_64\\stripe listen --forward-to localhost:5000/api/v1/payment/webhook",
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
     "lint": "eslint ./src/**/*"
