@@ -3,7 +3,6 @@ import * as MovieController from "./movie.controller";
 import auth from "../../middleware/auth";
 
 
-
 const movieRouter = Router();
 
 // user routes

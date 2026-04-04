@@ -5,6 +5,10 @@ model Subscription {
   stripeSessionId String?
   status          String 
   plan            String  
+
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
