@@ -4,21 +4,17 @@ import * as MovieService from "./movie.service";
 import { catchAsync } from "../../utils/catchAsync";
 
 export const createMovie = catchAsync(async (req: Request, res: Response) => {
+  const data = req.body;
+  const file = req.file;
 
-    const { type, title, coverImage, synopsis, genre, releaseYear, director, cast, platform, priceType, youtubeLink } = req.body;
-    
-    // validate required fields
-    if (!type || !title || !coverImage || !synopsis || !genre || !releaseYear || !director || !cast || !platform || !priceType || !youtubeLink) {
-      return res.status(400).json({ 
-        message: "Missing required fields",
-        required: ["type", "title", "coverImage", "synopsis", "genre", "releaseYear", "director", "cast", "platform", "priceType", "youtubeLink"]
-      });
-    }
+  const result = await MovieService.createMovie(data, file);
 
-    const result = await MovieService.createMovie(req.body);
-    res.status(201).json(result);
-    
+  res.status(201).json({
+    status: "success",
+    message: "Movie created successfully",
+    data: result,
   });
+});
 
 export const getMovies = catchAsync(async (req: Request, res: Response) => {
 

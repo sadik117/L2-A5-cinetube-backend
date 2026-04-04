@@ -4,11 +4,34 @@ import { AppError } from "../../utils/AppError";
 import { ICreateMovie } from "./movie.interface";
 import { buildMediaQuery } from "../../utils/queryBuilder";
 import { getPagination } from "../../utils/pagination";
+import cloudinary from "../../lib/cloudinary";
 
 
-export const createMovie = async (data: ICreateMovie) => {
-  return await prisma.media.create({ data });
+export const createMovie = async (data: ICreateMovie, file?: Express.Multer.File) => {
+  
+  // Upload image if file exists
+  const coverImage = file 
+    ? await uploadToCloudinary(file) 
+    : data.coverImage;
+
+  const movie = await prisma.media.create({
+    data: {
+      ...data,
+      coverImage,
+    },
+  });
+
+  return movie;
 };
+
+// Helper function to upload image to Cloudinary
+async function uploadToCloudinary(file: Express.Multer.File): Promise<string> {
+  const result = await cloudinary.uploader.upload(
+    `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+    { folder: "cinetube/posters" }
+  );
+  return result.secure_url;
+}
 
 
 export const getAllMovies = async (query: any) => {
