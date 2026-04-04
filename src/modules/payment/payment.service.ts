@@ -43,6 +43,8 @@ export const createCheckoutSession = async (userId: string): Promise<{ url: stri
   }
 };
 
+
+
 // [NOTE] -> This function processes incoming webhook events from Stripe. It verifies the event's signature to ensure it's from Stripe, then handles specific event types (like successful checkout sessions) to update the user's subscription status in the database.
 export const handleWebhook = async (req: any, res: any) => {
   const sig = req.headers["stripe-signature"] as string;
@@ -85,6 +87,8 @@ export const handleWebhook = async (req: any, res: any) => {
           currentPeriodEnd: subscriptionEnd,
         },
       });
+      
+      // console.log(`Subscription created for user ${userId}`);
 ;
     } catch (dbError: any) {
       console.error("Failed to create subscription in database:", dbError.message);
