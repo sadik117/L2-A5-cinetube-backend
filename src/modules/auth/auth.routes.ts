@@ -1,10 +1,11 @@
 import { Router } from "express";
 import * as AuthController from "./auth.controller";
 import auth from "../../middleware/auth";
+import { upload } from "../../middleware/cloudinaryUpload";
 
 const authRouter = Router();
 
-authRouter.post("/register", AuthController.registerUser);
+authRouter.post("/register", upload.single("image"), AuthController.registerUser);
 authRouter.post("/login", AuthController.loginUser);
 authRouter.post("/refresh-token", AuthController.refreshToken);
 authRouter.post("/logout", AuthController.logoutUser);

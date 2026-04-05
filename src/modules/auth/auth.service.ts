@@ -6,37 +6,85 @@ import {
   generateRefreshToken,
   generateSessionToken,
 } from "../../utils/token";
-import { ILoginData, IRegisterData } from "./auth.interface";
+import { ILoginData } from "./auth.interface";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import { AppError } from "../../utils/AppError";
 import crypto from "crypto";
+import cloudinary from "../../lib/cloudinary";
+import streamifier from "streamifier";
 
 
-export const registerUser = async (data: IRegisterData) => {
-  const { name, email, password, image } = data;
+const uploadToCloudinary = (buffer: Buffer): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "cine-tube/profiles", 
+        resource_type: "image",
+        transformation: [{ width: 400, height: 400, crop: "fill" }],
+      },
+      (error, result) => {
+        if (error) {
+          console.error("Cloudinary upload error:", error);
+          return reject(error);
+        }
+        resolve(result!.secure_url);
+      }
+    );
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
+    uploadStream.end(buffer);
   });
-
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const user = await prisma.user.create({
-    data: {
-      name: name as string,
-      email,
-      password: hashedPassword,
-      image: image || null,
-    },
-  });
-
-  return createSession(user);
 };
+
+
+export const registerUser = async (
+    name: string,
+    email: string,
+    password: string,
+    file?: Express.Multer.File   // file from multer
+  ) => {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    if (existingUser) {
+      throw new Error("User with this email already exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    let imageUrl: string | null = null;
+
+    // Upload image to Cloudinary if file exists
+    if (file?.buffer) {
+      try {
+        imageUrl = await uploadToCloudinary(file.buffer);
+      } catch (uploadError) {
+        console.error("Cloudinary upload failed:", uploadError);
+        // Continue registration even if image upload fails (non-blocking)
+      }
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        image: imageUrl,        // ← Save URL as String
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    const session = await createSession(user);
+
+    return { user, session };
+  };
+
 
 export const loginUser = async (data: ILoginData) => {
   const { email, password } = data;

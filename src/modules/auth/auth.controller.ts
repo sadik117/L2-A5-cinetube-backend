@@ -4,6 +4,7 @@ import * as AuthService from "./auth.service";
 import { setAuthCookies } from "../../utils/setCookie";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResetEmail } from "../../utils/sendEmail";
+import { AppError } from "../../utils/AppError";
 
 
 export const loginUser = catchAsync(async (req: Request, res: Response) => {
@@ -20,17 +21,29 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 
-export const registerUser = catchAsync(async (req: Request, res: Response) => {
-    const result = await AuthService.registerUser(req.body);
+export const 
+  registerUser = catchAsync(async (req: Request, res: Response) => {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      throw new AppError("Name, email and password are required", 400);
+    }
+
+    const result = await AuthService.registerUser(
+      name.trim(),
+      email.trim().toLowerCase(),
+      password,
+      req.file   // ← Multer file
+    );
 
     setAuthCookies(res, result);
 
     res.status(201).json({
+      success: true,
       message: "Registration successful",
       user: result.user,
     });
-
-});
+  });
 
 
 export const refreshToken = catchAsync(async (req: Request, res: Response) => {
