@@ -259,3 +259,32 @@ export const resetPassword = async (token: string, newPassword: string) => {
 
   return true;
 };
+
+
+export const getCurrentUser = async (userId: string) => {
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
+        createdAt: true,
+
+        _count: {
+          select: {
+            reviews: true,
+            watchlist: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return user;
+  };

@@ -137,3 +137,38 @@ export const resetPassword = catchAsync(async (req: Request, res: Response) => {
     });
   
 });
+
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+    try {
+
+      if (!req.user?.id) {
+        return res.status(401).json({
+          success: false,
+          message: 'Unauthorized - No user found in request',
+        });
+      }
+
+      const user = await AuthService.getCurrentUser(req.user.id);
+
+      return res.status(200).json({
+        success: true,
+        data: user,
+      });
+    } catch (error: any) {
+      console.error('Get Current User Error:', error);
+
+      // Handle specific errors
+      if (error.message === 'User not found') {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found',
+        });
+      }
+
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error while fetching user profile',
+      });
+    }
+};
