@@ -7,6 +7,7 @@ import { catchAsync } from "../../utils/catchAsync";
 export const createCheckout = catchAsync(async (req: Request, res: Response) => {
 
     const userId = (req as any).user?.id;
+    const { plan } = req.body;
 
     if (!userId) {
       console.error("No userId found in authenticated request");
@@ -15,7 +16,7 @@ export const createCheckout = catchAsync(async (req: Request, res: Response) => 
       });
     }
 
-    const { url } = await PaymentService.createCheckoutSession(userId);
+    const { url } = await PaymentService.createCheckoutSession(userId, plan);
 
     res.status(200).json({ 
       success: true, 
