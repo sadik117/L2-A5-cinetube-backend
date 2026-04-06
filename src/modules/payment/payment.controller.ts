@@ -28,3 +28,18 @@ export const createCheckout = catchAsync(async (req: Request, res: Response) => 
 export const stripeWebhook = async (req: Request, res: Response) => {
   await PaymentService.handleWebhook(req, res);
 };
+
+
+export const getMySubscription = catchAsync(async (req: Request, res: Response) => {
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const result = await PaymentService.getMySubscription(userId);
+
+    res.json(result);
+
+});

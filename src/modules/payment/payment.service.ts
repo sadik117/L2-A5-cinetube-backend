@@ -29,8 +29,8 @@ export const createCheckoutSession = async (userId: string): Promise<{ url: stri
           quantity: 1,
         },
       ],
-      success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/cancel`,
+      success_url: `${process.env.CLIENT_URL}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/subscription/cancel`,
       metadata: { 
         userId: userId 
       },
@@ -96,4 +96,24 @@ export const handleWebhook = async (req: any, res: any) => {
   }
 
   res.status(200).send("OK");
+};
+
+
+export const getMySubscription = async (userId: string) => {
+  
+  if (!userId) {
+    throw new Error("User ID is required");
+  }
+
+  const subscription = await prisma.subscription.findFirst({
+    where: {
+      userId,
+      status: "active",
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return subscription;
 };
