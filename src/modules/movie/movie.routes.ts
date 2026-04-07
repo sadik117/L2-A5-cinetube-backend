@@ -13,7 +13,7 @@ movieRouter.get("/streaming/:id", auth(), MovieController.getStreamingLink);
 
 // admin routes
 movieRouter.post("/", auth("ADMIN"), upload.single("coverImage"), MovieController.createMovie);
-movieRouter.patch("/:id", auth("ADMIN"), MovieController.updateMovie);
+movieRouter.patch("/:id", auth("ADMIN"), upload.single("coverImage"), MovieController.updateMovie);
 movieRouter.delete("/:id", auth("ADMIN"), MovieController.deleteMovie);
 
 

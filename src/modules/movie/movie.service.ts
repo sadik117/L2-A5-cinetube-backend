@@ -5,19 +5,38 @@ import { ICreateMovie } from "./movie.interface";
 import { buildMediaQuery } from "../../utils/queryBuilder";
 import { getPagination } from "../../utils/pagination";
 import cloudinary from "../../lib/cloudinary";
+import { createMediaSchema } from "../../zod/createMediaSchema";
+import { Genre } from "../../generated/prisma/enums";
 
+export const createMovie = async (
+  data: any,
+  file?: Express.Multer.File,
+) => {
+  // Step 1: Upload file if exists
+  let coverImageUrl = data.coverImage; // fallback if editing
+  if (file) {
+    coverImageUrl = await uploadToCloudinary(file); // returns string URL
+  }
 
-export const createMovie = async (data: ICreateMovie, file?: Express.Multer.File) => {
-  
-  // Upload image if file exists
-  const coverImage = file 
-    ? await uploadToCloudinary(file) 
-    : data.coverImage;
+  // Step 2: Ensure coverImage exists
+  if (!coverImageUrl) {
+    throw new Error("Cover image is required");
+  }
 
+  // Step 3: Parse data with Zod, using the uploaded URL
+  const parsed = createMediaSchema.parse({
+    ...data,
+    coverImage: coverImageUrl, // now a string
+  });
+
+  // Step 4: Ensure Prisma enum type for genre
+  const genre = parsed.genre as Genre[];
+
+  // Step 5: Create media
   const movie = await prisma.media.create({
     data: {
-      ...data,
-      coverImage,
+      ...parsed,
+      genre,
     },
   });
 
@@ -28,11 +47,10 @@ export const createMovie = async (data: ICreateMovie, file?: Express.Multer.File
 async function uploadToCloudinary(file: Express.Multer.File): Promise<string> {
   const result = await cloudinary.uploader.upload(
     `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
-    { folder: "cinetube/posters" }
+    { folder: "cinetube/posters" },
   );
   return result.secure_url;
 }
-
 
 export const getAllMovies = async (query: any) => {
   const { minRating, maxRating, sort } = query;
@@ -108,7 +126,6 @@ export const getAllMovies = async (query: any) => {
   };
 };
 
-
 export const getSingleMovie = async (id: string) => {
   return await prisma.media.findUnique({
     where: { id },
@@ -117,7 +134,6 @@ export const getSingleMovie = async (id: string) => {
     },
   });
 };
-
 
 export const updateMovie = async (id: string, data: ICreateMovie) => {
   // check if movie exists first
@@ -135,40 +151,37 @@ export const updateMovie = async (id: string, data: ICreateMovie) => {
   });
 };
 
-
 export const deleteMovie = async (id: string) => {
   return await prisma.media.delete({
     where: { id },
   });
 };
 
-
 export const getStreamingLink = async (mediaId: string, userId: string) => {
- 
   const media = await prisma.media.findUnique({
-      where: { id: mediaId },
-    });
+    where: { id: mediaId },
+  });
 
-    if (!media) {
-      throw new AppError("Media not found", 404);
-    }
+  if (!media) {
+    throw new AppError("Media not found", 404);
+  }
 
-    // Free content
-    if (media.priceType === "Free") {
-      return { youtubeLink: media.youtubeLink };
-    }
-
-    // Premium content
-    const subscription = await prisma.subscription.findFirst({
-      where: {
-        userId,
-        status: "active",
-      },
-    });
-
-    if (!subscription) {
-      throw new AppError("Premium subscription required!!", 403);
-    }
-
+  // Free content
+  if (media.priceType === "Free") {
     return { youtubeLink: media.youtubeLink };
+  }
+
+  // Premium content
+  const subscription = await prisma.subscription.findFirst({
+    where: {
+      userId,
+      status: "active",
+    },
+  });
+
+  if (!subscription) {
+    throw new AppError("Premium subscription required!!", 403);
+  }
+
+  return { youtubeLink: media.youtubeLink };
 };

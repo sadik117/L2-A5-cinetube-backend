@@ -12,6 +12,7 @@ enum Genre {
   Action
   Adventure
   Crime
+  Comedy
   Drama
   Documentary
   Thriller 

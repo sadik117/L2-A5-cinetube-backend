@@ -9,11 +9,12 @@ const commentRouter = Router();
 commentRouter.post("/", auth(), CommentController.createComment);
 commentRouter.get("/review/:reviewId", CommentController.getComments);
 commentRouter.patch("/:id", auth(), CommentController.updateComment);
-commentRouter.delete("/:id", auth(), CommentController.deleteComment);
+
 
 // admin
 commentRouter.get("/", auth("ADMIN"), CommentController.getAllComments);
 commentRouter.patch("/approve/:id", auth("ADMIN"), CommentController.approveComment);
+commentRouter.delete("/:id", auth("ADMIN"), CommentController.deleteComment);
 
 
 export default commentRouter;

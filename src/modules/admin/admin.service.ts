@@ -26,21 +26,42 @@ export const getDashboardStats = async () => {
 
 
 export const getMediaAnalytics = async () => {
-  const mostReviewed = await prisma.media.findMany({
-    orderBy: {
-      totalReviews: "desc",
-    },
-    take: 10,
-  });
+  const [mostReviewed, topRated, totalMedia] = await Promise.all([
+    prisma.media.findMany({
+      select: {
+        id: true,
+        title: true,
+        type: true,
+        averageRating: true,
+        totalReviews: true,
+        priceType: true,
+      },
+      orderBy: {
+        totalReviews: "desc",
+      },
+      take: 8,
+    }),
 
-  const topRated = await prisma.media.findMany({
-    orderBy: {
-      averageRating: "desc",
-    },
-    take: 10,
-  });
+    prisma.media.findMany({
+      select: {
+        id: true,
+        title: true,
+        type: true,
+        averageRating: true,
+        totalReviews: true,
+        priceType: true,
+      },
+      orderBy: {
+        averageRating: "desc",
+      },
+      take: 8,
+    }),
+
+    prisma.media.count(),
+  ]);
 
   return {
+    totalMedia,
     mostReviewed,
     topRated,
   };
@@ -54,6 +75,7 @@ export const getUserActivity = async () => {
         select: {
           reviews: true,
           comments: true,
+          watchlist: true
         },
       },
     },
@@ -66,19 +88,23 @@ export const getUserActivity = async () => {
 
 
 export const getSubscriptionAnalytics = async () => {
-  const total = await prisma.subscription.count();
-
-  const active = await prisma.subscription.count({
-    where: { status: "active" },
-  });
-
-  const canceled = await prisma.subscription.count({
-    where: { status: "canceled" },
-  });
+  const [total, active, canceled] = await Promise.all([
+    prisma.subscription.count(),
+    prisma.subscription.count({
+      where: { status: "active" },
+    }),
+    prisma.subscription.count({
+      where: { status: "canceled" },
+    }),
+    prisma.subscription.aggregate({
+      where: { status: "active" },
+    }),
+  ]);
 
   return {
     total,
     active,
     canceled,
+    activePercentage: total > 0 ? Math.round((active / total) * 100) : 0,
   };
 };

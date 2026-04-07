@@ -11,11 +11,6 @@ export const getAnalytics = async (_req: Request, res: Response) => {
   res.json(data);
 };
 
-export const getPendingReviews = async (_req: Request, res: Response) => {
-  const data = await AdminService.getPendingReviews();
-  res.json(data);
-};
-
 export const getUsers = async (_req: Request, res: Response) => {
   const data = await AdminService.getUserActivity();
   res.json(data);
