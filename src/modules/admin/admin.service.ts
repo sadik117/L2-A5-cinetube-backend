@@ -25,49 +25,6 @@ export const getDashboardStats = async () => {
 };
 
 
-export const getMediaAnalytics = async () => {
-  const [mostReviewed, topRated, totalMedia] = await Promise.all([
-    prisma.media.findMany({
-      select: {
-        id: true,
-        title: true,
-        type: true,
-        averageRating: true,
-        totalReviews: true,
-        priceType: true,
-      },
-      orderBy: {
-        totalReviews: "desc",
-      },
-      take: 8,
-    }),
-
-    prisma.media.findMany({
-      select: {
-        id: true,
-        title: true,
-        type: true,
-        averageRating: true,
-        totalReviews: true,
-        priceType: true,
-      },
-      orderBy: {
-        averageRating: "desc",
-      },
-      take: 8,
-    }),
-
-    prisma.media.count(),
-  ]);
-
-  return {
-    totalMedia,
-    mostReviewed,
-    topRated,
-  };
-};
-
-
 export const getUserActivity = async () => {
   return await prisma.user.findMany({
     include: {
@@ -87,24 +44,63 @@ export const getUserActivity = async () => {
 };
 
 
-export const getSubscriptionAnalytics = async () => {
-  const [total, active, canceled] = await Promise.all([
-    prisma.subscription.count(),
-    prisma.subscription.count({
-      where: { status: "active" },
-    }),
-    prisma.subscription.count({
-      where: { status: "canceled" },
-    }),
-    prisma.subscription.aggregate({
-      where: { status: "active" },
-    }),
-  ]);
+export const getSubscriptions = async () => {
 
-  return {
-    total,
-    active,
-    canceled,
-    activePercentage: total > 0 ? Math.round((active / total) * 100) : 0,
+    return await prisma.subscription.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
   };
-};
+
+  export const getSubscriptionsAnalytics = async () => {
+
+    const subscriptions = await prisma.subscription.findMany();
+
+    const total = subscriptions.length;
+
+    const active = subscriptions.filter(
+      (s) => s.status === "active"
+    ).length;
+
+    const canceled = subscriptions.filter(
+      (s) => s.status === "canceled"
+    ).length;
+
+    const activePercentage = total
+      ? Math.round((active / total) * 100)
+      : 0;
+
+    // Plan distribution
+    const planMap: Record<string, number> = {};
+
+    subscriptions.forEach((sub) => {
+      const plan = sub.plan || "Unknown";
+      planMap[plan] = (planMap[plan] || 0) + 1;
+    });
+
+    const planDistribution = Object.entries(planMap).map(
+      ([plan, count]) => ({
+        plan,
+        count,
+        percentage: Math.round((count / total) * 100),
+      })
+    );
+
+    return {
+      total,
+      active,
+      canceled,
+      activePercentage,
+      planDistribution,
+    };
+  };

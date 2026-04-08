@@ -87,6 +87,19 @@ export const approveComment = async (id: string) => {
 };
 
 
+// admin can delete any comment
+export const deleteComment = async (id: string) => {
+
+  const comment = await prisma.comment.findUnique({ where: { id } });
+
+  if (!comment) throw new AppError("Comment not found", 404);
+
+  return await prisma.comment.delete({
+    where: { id },
+  });
+};
+
+
 // update comment that is not approved by owner
 export const updateComment = async (
   id: string, userId: string, content: string
@@ -109,18 +122,3 @@ export const updateComment = async (
   });
 };
 
-
-// user can delete own comment, admin can delete any comment
-export const deleteComment = async (id: string, userId?: string) => {
-  const comment = await prisma.comment.findUnique({ where: { id } });
-
-  if (!comment) throw new AppError("Comment not found", 404);
-
-  if (userId && comment.userId !== userId) {
-    throw new AppError("Unauthorized", 403);
-  }
-
-  return await prisma.comment.delete({
-    where: { id },
-  });
-};

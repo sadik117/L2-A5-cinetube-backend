@@ -79,11 +79,9 @@ export const updateComment = catchAsync(async (req: Request, res: Response) => {
 
 // delete comment 
 export const deleteComment = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
 
     const result = await CommentService.deleteComment(
       req.params.id as string,
-      userId
     );
 
     res.json({ message: "Deleted", data: result });
