@@ -84,14 +84,13 @@ export const getAllReviews = catchAsync(async (req: Request, res: Response) => {
 
 // approve review by admin
 export const approveReview = catchAsync(async (req: Request, res: Response) => {
+  const result = await ReviewService.approveReview(req.params.id as string);
 
-    const result = await ReviewService.approveReview(req.params.id as string);
-
-    res.status(201).json({ 
-      message: "Review approved successfully", 
-      data: result 
-    });
-  
+  res.status(200).json({
+    success: true,
+    message: "Review approved successfully",
+    data: result,
+  });
 });
 
 // unpublish / reject review by admin 
@@ -102,10 +101,10 @@ export const unpublishReview = catchAsync(async (req: Request, res: Response) =>
     throw new AppError("Review ID is required", 400);
   }
 
-  const result = await ReviewService.unpublishReview(id);
+  const result = await ReviewService.unpublishReview(id as string);
 
   res.status(200).json({
-    status: "success",
+    success: true,
     message: "Review has been unpublished successfully",
     data: result
   });
