@@ -17,11 +17,13 @@ app.use(
 );
 
 app.use(express.json());
-app.use(cors({
-    origin: "http://localhost:3000", 
-    credentials: true,              
-    allowedHeaders: ["Content-Type", "Authorization", "Origin"],             
-}));
+
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());
 

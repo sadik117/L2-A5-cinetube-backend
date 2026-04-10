@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import app from "./app.js";
 import { prisma } from "./lib/prisma";
 
-const port = process.env.PORT;
+// const port = process.env.PORT;
 
 
 async function server() {
   try {
     await prisma.$connect();
 
-    app.listen(port, () => {
-      console.log(`Server is running at ${port}`);
-    });
+    // app.listen(port, () => {
+    //   console.log(`Server is running at ${port}`);
+    // });
 
   } catch (error) {
     console.log(error);

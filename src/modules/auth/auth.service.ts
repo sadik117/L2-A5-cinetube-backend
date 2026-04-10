@@ -12,7 +12,6 @@ import { OAuth2Client } from "google-auth-library";
 import { AppError } from "../../utils/AppError";
 import crypto from "crypto";
 import cloudinary from "../../lib/cloudinary";
-import streamifier from "streamifier";
 
 
 const uploadToCloudinary = (buffer: Buffer): Promise<string> => {

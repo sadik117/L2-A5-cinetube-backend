@@ -3,5 +3,7 @@ dist
 build
 .env    
 
-
+api
 src/generated/prisma
+.vercel
+

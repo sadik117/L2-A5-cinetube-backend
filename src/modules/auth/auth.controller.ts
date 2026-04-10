@@ -116,7 +116,7 @@ export const googleCallback = catchAsync(async (req: Request, res: Response) => 
     setAuthCookies(res, result);
 
     // redirect to frontend
-    res.redirect("http://localhost:3000");
+    res.redirect("https://cinetube-universe.vercel.app");
 
 });
 
