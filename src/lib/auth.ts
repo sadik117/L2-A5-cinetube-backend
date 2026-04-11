@@ -1,54 +1,36 @@
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma";
+// [NOTE- Using custom auth so skip this file for now but keeping it for google authentication later]
 
-export const auth = betterAuth({
-  basePath: "/api/auth",
-  baseURL: "https://cinetube-server-pink.vercel.app",
-  trustedOrigins: ["http://localhost:3000"],
+// import { betterAuth } from "better-auth";
+// import { prismaAdapter } from "better-auth/adapters/prisma";
+// import { prisma } from "./prisma";
 
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
-  }),
+// export const auth = betterAuth({
+//   basePath: "/api/auth",
+//   baseURL: process.env.BETTER_AUTH_URL!,
 
-  emailAndPassword: {
-    enabled: true,
-    minPasswordLength: 6,
-  },
+//   database: prismaAdapter(prisma, {
+//     provider: "postgresql",
+//   }),
 
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    },
-  },
+//   trustedOrigins: [
+//     "http://localhost:3000",
+//     "https://cinetube-universe.vercel.app",
+//   ],
 
-  user: {
-    additionalFields: {
-      role: {
-        type: "string",
-        defaultValue: "USER",
-      },
-    },
-  },
+//   socialProviders: {
+//     google: {
+//       clientId: process.env.GOOGLE_CLIENT_ID!,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+//     },
+//   },
 
-  session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 7 * 24 * 60 * 60,
-    },
-    cookie: {
-      sameSite: "none",
-      secure: true,
-      httpOnly: true,
-    },
-  },
+//   session: {
+//     expiresIn: 60 * 60 * 24 * 7, // 7 days
 
-  advanced: {
-    cookiePrefix: "better-auth",
-    crossSubDomainCookies: {
-      enabled: false,
-    },
-    disableCSRFCheck: true,
-  },
-});
+//     cookie: {
+//       sameSite: "none", 
+//       secure: true,     
+//     },
+//   },
+
+// });

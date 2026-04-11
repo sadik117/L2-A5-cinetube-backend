@@ -1,19 +1,21 @@
 import express, { type Application, type Request, type Response } from "express";
 import routes from "./routes/router";
-import { auth } from "./lib/auth";
-import { toNodeHandler } from "better-auth/node";
+// import { auth } from "./lib/auth";
+// import { toNodeHandler } from "better-auth/node";
 import cors from "cors"
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { globalErrorHandler } from "./middleware/errorHandler";
+import { stripeWebhook } from "./modules/payment/payment.controller";
 
 const app: Application = express();
 
 dotenv.config();
 
-app.use(
+app.post(
   "/api/v1/payment/webhook",
-  express.raw({ type: "application/json" })
+  express.raw({ type: "application/json" }),
+  stripeWebhook
 );
 
 app.use(express.json());
@@ -28,7 +30,7 @@ app.use(
 app.use(cookieParser());
 
 // Better Auth Route 
-app.all("/api/auth/*splat", toNodeHandler(auth));
+// app.all("/api/auth/*splat", toNodeHandler(auth));
 
 //  API Routes 
 app.use("/api/v1", routes);

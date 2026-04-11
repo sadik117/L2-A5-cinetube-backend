@@ -26,9 +26,13 @@ export const createCheckout = catchAsync(async (req: Request, res: Response) => 
 });
 
 
-export const stripeWebhook = async (req: Request, res: Response) => {
-  await PaymentService.handleWebhook(req, res);
-};
+export const stripeWebhook = catchAsync(async (req: Request, res: Response) => {
+
+    await PaymentService.handleWebhook(req, res);
+
+    res.status(500).send("Webhook failed");
+  
+});
 
 
 export const getMySubscription = catchAsync(async (req: Request, res: Response) => {

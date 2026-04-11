@@ -57,8 +57,10 @@ export const refreshToken = catchAsync(async (req: Request, res: Response) => {
     // update access token cookie
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 30 * 60 * 1000, // 30 min
+      path: "/",
     });
 
     res.json({
@@ -86,39 +88,39 @@ export const logoutUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 
-// redirect to Google
-export const googleLogin = (req: Request, res: Response) => {
-  const url =
-  `https://accounts.google.com/o/oauth2/v2/auth?` +
-  `client_id=${process.env.GOOGLE_CLIENT_ID}` +
-  `&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}` +
-  `&response_type=code` +
-  `&scope=openid%20email%20profile` +
-  `&access_type=offline` +
-  `&prompt=consent`;
+// // redirect to Google
+// export const googleLogin = (req: Request, res: Response) => {
+//   const url =
+//   `https://accounts.google.com/o/oauth2/v2/auth?` +
+//   `client_id=${process.env.GOOGLE_CLIENT_ID}` +
+//   `&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}` +
+//   `&response_type=code` +
+//   `&scope=openid%20email%20profile` +
+//   `&access_type=offline` +
+//   `&prompt=consent`;
 
-  res.redirect(url);
-};
+//   res.redirect(url);
+// };
 
 
-// callback
-export const googleCallback = catchAsync(async (req: Request, res: Response) => {
+// // callback
+// export const googleCallback = catchAsync(async (req: Request, res: Response) => {
 
-    const code = req.query.code as string;
+//     const code = req.query.code as string;
 
-    if (!code) {
-      return res.status(400).json({ message: "No code provided" });
-    }
+//     if (!code) {
+//       return res.status(400).json({ message: "No code provided" });
+//     }
 
-    const result = await AuthService.googleLoginService(code);
+//     const result = await AuthService.googleLoginService(code);
 
-    // set cookies
-    setAuthCookies(res, result);
+//     // set cookies
+//     setAuthCookies(res, result);
 
-    // redirect to frontend
-    res.redirect("https://cinetube-universe.vercel.app");
+//     // redirect to frontend
+//     res.redirect("https://cinetube-universe.vercel.app/auth/google-success");
 
-});
+// });
 
 
 export const forgotPassword = catchAsync(async (req: Request, res: Response) => {
@@ -127,7 +129,7 @@ export const forgotPassword = catchAsync(async (req: Request, res: Response) => 
 
     const token = await AuthService.forgotPassword(email);
 
-    const resetURL = `http://localhost:3000/reset-password/${token}`;
+    const resetURL = `https://cinetube-universe.vercel.app/reset-password/${token}`;
 
     await sendResetEmail(email, resetURL);
 

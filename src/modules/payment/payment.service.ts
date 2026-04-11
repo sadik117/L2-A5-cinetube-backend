@@ -46,34 +46,40 @@ export const createCheckoutSession = async (
   return { url: session.url };
 };
 
+
 // [NOTE] -> This function processes incoming webhook events from Stripe. It verifies the event's signature to ensure it's from Stripe, then handles specific event types (like successful checkout sessions) to update the user's subscription status in the database.
+
 export const handleWebhook = async (req: any, res: any) => {
-  const sig = req.headers["stripe-signature"] as string;
-  const rawBody = req.body; // Must be raw body (Buffer)
+  const sig = req.headers["stripe-signature"];
+
+  if (!sig) {
+    return res.status(400).send("Missing signature");
+  }
 
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(
-      rawBody,
+      req.body, // MUST be Buffer now
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!,
     );
   } catch (err: any) {
+    console.error("Stripe signature failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle successful checkout for subscription
+  // console.log(" WEBHOOK:", event.type);
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as any;
 
     const userId = session.metadata?.userId;
+    const plan = session.metadata?.plan || "monthly";
 
     if (!userId) {
       return res.status(400).send("Missing userId");
     }
-
-    const plan = session.metadata?.plan || "monthly";
 
     const now = new Date();
 
@@ -82,19 +88,43 @@ export const handleWebhook = async (req: any, res: any) => {
         ? new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000)
         : new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-    await prisma.subscription.create({
-      data: {
-        userId,
+    const existingSubscription = await prisma.subscription.findFirst({
+      where: {
         stripeSessionId: session.id,
-        stripeCustomerId: (session.customer as string) || null,
-        status: "active",
-        plan,
-        currentPeriodStart: now,
-        currentPeriodEnd: subscriptionEnd,
       },
     });
+
+    if (existingSubscription) {
+      await prisma.subscription.update({
+        where: {
+          id: existingSubscription.id,
+        },
+        data: {
+          status: "active",
+          plan,
+          currentPeriodEnd: subscriptionEnd,
+        },
+      });
+    } else {
+      await prisma.subscription.create({
+        data: {
+          userId,
+          stripeSessionId: session.id,
+          stripeCustomerId: (session.customer as string) || null,
+          status: "active",
+          plan,
+          currentPeriodStart: now,
+          currentPeriodEnd: subscriptionEnd,
+        },
+      });
+    }
+
+    // console.log("Subscription saved");
   }
+
+  res.json({ received: true });
 };
+
 
 export const getMySubscription = async (userId: string) => {
   if (!userId) {

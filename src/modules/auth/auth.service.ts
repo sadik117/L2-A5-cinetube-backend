@@ -176,71 +176,71 @@ export const logoutUser = async (sessionToken: string) => {
   });
 };
 
-const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI,
-);
+// const client = new OAuth2Client(
+//   process.env.GOOGLE_CLIENT_ID,
+//   process.env.GOOGLE_CLIENT_SECRET,
+//   process.env.GOOGLE_REDIRECT_URI,
+// );
 
-export const googleLoginService = async (code: string) => {
-  //  exchange code for tokens
-  const { tokens } = await client.getToken(code);
+// export const googleLoginService = async (code: string) => {
+//   //  exchange code for tokens
+//   const { tokens } = await client.getToken(code);
 
-  // verify id_token
-  const ticket = await client.verifyIdToken({
-    idToken: tokens.id_token!,
-    audience: process.env.GOOGLE_CLIENT_ID!,
-  });
+//   // verify id_token
+//   const ticket = await client.verifyIdToken({
+//     idToken: tokens.id_token!,
+//     audience: process.env.GOOGLE_CLIENT_ID!,
+//   });
 
-  const payload = ticket.getPayload();
+//   const payload = ticket.getPayload();
 
-  if (!payload?.email) {
-    throw new AppError("Google authentication failed", 400);
-  }
+//   if (!payload?.email) {
+//     throw new AppError("Google authentication failed", 400);
+//   }
 
-  // find or create user
-  let user = await prisma.user.findUnique({
-    where: { email: payload.email },
-  });
+//   // find or create user
+//   let user = await prisma.user.findUnique({
+//     where: { email: payload.email },
+//   });
 
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        name: (payload.name as string) || "Google User",
-        email: payload.email as string,
-        image: (payload.picture as string) || null,
-        password: "", // no password
-      },
-    });
-  }
+//   if (!user) {
+//     user = await prisma.user.create({
+//       data: {
+//         name: (payload.name as string) || "Google User",
+//         email: payload.email as string,
+//         image: (payload.picture as string) || null,
+//         password: "", // no password
+//       },
+//     });
+//   }
 
-  // create tokens (same as your system)
-  const jwtPayload = {
-    id: user.id,
-    role: user.role,
-  };
+//   // create tokens (same as your system)
+//   const jwtPayload = {
+//     id: user.id,
+//     role: user.role,
+//   };
 
-  const accessToken = generateAccessToken(jwtPayload);
-  const refreshToken = generateRefreshToken(jwtPayload);
-  const sessionToken = generateSessionToken();
+//   const accessToken = generateAccessToken(jwtPayload);
+//   const refreshToken = generateRefreshToken(jwtPayload);
+//   const sessionToken = generateSessionToken();
 
-  await prisma.session.create({
-    data: {
-      id: generateSessionToken(),
-      userId: user.id as string,
-      refreshToken: refreshToken as string,
-      token: sessionToken as string,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    },
-  });
+//   await prisma.session.create({
+//     data: {
+//       id: generateSessionToken(),
+//       userId: user.id as string,
+//       refreshToken: refreshToken as string,
+//       token: sessionToken as string,
+//       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+//     },
+//   });
 
-  return {
-    accessToken,
-    refreshToken,
-    sessionToken,
-    user,
-  };
-};
+//   return {
+//     accessToken,
+//     refreshToken,
+//     sessionToken,
+//     user,
+//   };
+// };
 
 
 export const forgotPassword = async (email: string) => {
